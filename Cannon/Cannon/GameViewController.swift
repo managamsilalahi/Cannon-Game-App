@@ -48,9 +48,9 @@ class GameViewController: UIViewController {
         scene.scaleMode = .AspectFill // resize scene to file the screen
         
         let skView = view as! SKView // get GameViewController's SKView
-        skView.showFPS = true // display FPS
+        skView.showsFPS = true // display FPS
         skView.showsNodeCount = true // display Node Count
-        skView.ignoreSiblingOrder = true // for SpriteKit optimizations
+        skView.ignoresSiblingOrder = true // for SpriteKit optimizations
         skView.presentScene(scene) // display the scene
         
         

@@ -58,9 +58,8 @@ class Blocker: SKSpriteNode {
     
     // applies an impulse to the blocker
     func startMoving(velocityMultiplier: CGFloat) {
-        
-        self.physicsBody?.applyImpulse(CGVectorMake(0.0, velocityMultiplier * blockerSpeed * blockerSize.rawValue))
-        
+        self.physicsBody?.applyImpulse(CGVectorMake(0.0,
+            velocityMultiplier * blockerSpeed * blockerSize.rawValue))
     }
     
     // plays the blockerHitSound
