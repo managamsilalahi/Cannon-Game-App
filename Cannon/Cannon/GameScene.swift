@@ -99,4 +99,38 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    
+    
+    
+    // create the text labels
+    func createLabels() {
+        
+        // constants related to displaying text for time remaining
+        let edgeDistance = CGFloat(20.0)
+        let labelSpacing = CGFloat(5.0)
+        let fontSize = CGFloat(16.0)
+        
+        // let configure "Time remaining: " label
+        let timeRemainingLabel = SKLabelNode(fontNamed: "Chalkduster")
+        timeRemainingLabel.text = "Time remaining"
+        timeRemainingLabel.fontSize = fontSize
+        timeRemainingLabel.fontColor = SKColor.blackColor()
+        timeRemainingLabel.horizontalAlignmentMode = .Left
+        let y = self.frame.height - timeRemainingLabel.fontSize - edgeDistance
+        timeRemainingLabel.position = CGPoint(x: edgeDistance, y: y)
+        self.addChild(timeRemainingLabel)
+        
+        
+        // configure label for displaying time remaining
+        secondsLabel = SKLabelNode(fontNamed: "Chalkduster")
+        secondsLabel.text = "0.0 seconds"
+        secondsLabel.fontSize = fontSize
+        secondsLabel.fontColor = SKColor.blackColor()
+        secondsLabel.horizontalAlignmentMode = .Left
+        let x = timeRemainingLabel.calculateAccumulatedFrame().width + edgeDistance + labelSpacing
+        secondsLabel.position = CGPoint(x: x, y: y)
+        self.addChild(secondsLabel)
+        
+    }
+    
 }
