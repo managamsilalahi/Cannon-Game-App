@@ -24,7 +24,7 @@ class Cannon: SKNode {
     
     
     private var barrelAngle = CGFloat(0.0)
-    private var cannonBall = SKSpriteNode()
+    private var cannonball = SKSpriteNode()
     var cannonballOnScreen = false
     
     
@@ -78,6 +78,53 @@ class Cannon: SKNode {
                 self.fireCannonball(scene)
             }
         }
+        
+    }
+    
+    
+    // create cannonball, attach to scene and start it moving
+    private func fireCannonball(scene: SKScene) {
+        
+        cannonballOnScreen = true
+        
+        
+        // determin starting point for cannonball based on
+        // barrelLength and current barrelAngle
+        let x = cos(barrelAngle) * barrelLength
+        let y = sin(barrelAngle) * barrelLength
+        let cannonball = createCannonball(scene.frame.size)
+        cannonball.position = CGPointMake(x, self.position.y + y)
+        
+        // create based on barrel angle
+        let velocityVector = CGVectorMake(x * cannonBallSpeed, y * cannonBallSpeed)
+        
+        // put cannonball on screen, move it and play fire sound
+        scene.addChild(cannonball)
+        cannonball.physicsBody?.applyImpulse(velocityVector)
+        cannonFireSound.play()
+        
+    }
+    
+    
+    // create the cannonball and configures its physicsBody
+    func createCannonball(sceneSize: CGSize) -> SKSpriteNode {
+        
+        cannonball = SKSpriteNode(imageNamed: "ball")
+        cannonball.size = CGSizeMake(sceneSize.height * cannonSizePercent, sceneSize.height * cannonSizePercent)
+        
+        
+        // set up physicsBody
+        cannonball.physicsBody = SKPhysicsBody(circleOfRadius: cannonball.size.width / 2.0)
+        cannonball.physicsBody?.friction = 0.0
+        cannonball.physicsBody?.restitution = 1.0
+        cannonball.physicsBody?.linearDamping = 0.0
+        cannonball.physicsBody?.allowsRotation = true
+        cannonball.physicsBody?.usesPreciseCollisionDetection = true
+        cannonball.physicsBody?.categoryBitMask = CollisionCategory.Cannonball
+        cannonball.physicsBody?.contactTestBitMask = CollisionCategory.Target | CollisionCategory.Blocker | CollisionCategory.Wall
+        
+        
+        return cannonball
         
     }
     
