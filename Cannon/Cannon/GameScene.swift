@@ -23,7 +23,7 @@ struct CollisionCategory {
 // global because no type constants in Swift classes yet
 private let numberOfTargets = 9
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // game elements that the scene interacts with programmatically
     private var secondsLabel: SKLabelNode! = nil
@@ -34,5 +34,69 @@ class GameScene: SKScene {
     private var elapsedTime: CFTimeInterval = 0.0
     private var previousTime: CFTimeInterval = 0.0
     private var targetsRemaining: Int = numberOfTargets
+    
+    
+    
+    // called when scene is presented
+    override func didMoveToView(view: SKView) {
+        
+        self.backgroundColor = SKColor.whiteColor()
+        
+        // helps determine game element speeds based on scene size
+        var velocityMultiplier = self.size.width / self.size.height
+        
+        if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
+            velocityMultiplier = CGFloat(velocityMultiplier * 6.0)
+        }
+        
+        
+        // configure the physicsWorlds
+        self.physicsWorld.gravity = CGVectorMake(0.0, 0.0)
+        self.physicsWorld.contactDelegate = self
+        
+        
+        // carete border for objects colliding with screen edges
+        self.physicsBody = SKPhysicsBody(edgeLoopFromRect: self.frame)
+        self.physicsBody?.friction = 0.0 // no friction
+        self.physicsBody?.categoryBitMask = CollisionCategory.Wall
+        self.physicsBody?.contactTestBitMask = CollisionCategory.Cannonball
+        
+        
+        createLabels() // display labels at scene's top-left corner
+        
+        
+        // create and attach Cannon
+        cannon = Cannon(sceneSize: size, velocityMultiplier: velocityMultiplier)
+        cannon.position = CGPointMake(0.0, self.frame.height / 2.0)
+        self.addChild(cannon)
+        
+        
+        // create and attach medium Blocker and start moving
+        let blockerxPercent = CGFloat(0.5)
+        let blockeryPercent = CGFloat(0.25)
+        let blocker = Blocker(sceneSize: self.frame.size, blockerSize: BlockerSize.Medium)
+
+        
+        blocker.position = CGPointMake(self.frame.width * blockerxPercent, self.frame.height * blockeryPercent)
+        self.addChild(blocker)
+        blocker.startMoving(velocityMultiplier)
+        
+        
+        //create and attach targets of random size and start moving
+        let targetxPercent = CGFloat(0.6) // % across scene to 1st target
+        var targetX = size.width * targetxPercent
+        
+        
+        for i in 1 ... numberOfTargets {
+            
+            let target = Target(sceneSize: self.frame.size)
+            target.position = CGPointMake(targetX, self.frame.height * 0.5)
+            targetX += target.size.width + 5.0
+            self.addChild(target)
+            target.startMoving(velocityMultiplier)
+            
+        }
+        
+    }
     
 }
