@@ -30,9 +30,9 @@ class Blocker: SKSpriteNode {
         self.blockerSize = blockerSize
         
         super.init(
-        texture: SKTexture(imageNamed: "blocker"),
-        color: UIColor.clearColor(),
-        size: CGSizeMake(sceneSize.width * blockerWidthPercent, sceneSize.height * blockerHeightPercent * blockerSize.rawValue)
+            texture: SKTexture(imageNamed: "blocker"),
+            color: UIColor.clearColor(),
+            size: CGSizeMake(sceneSize.width * blockerWidthPercent, sceneSize.height * blockerHeightPercent * blockerSize.rawValue)
         )
         
         
@@ -49,6 +49,7 @@ class Blocker: SKSpriteNode {
         
     }
     
+    // not called, but required if subclass defines an init
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
