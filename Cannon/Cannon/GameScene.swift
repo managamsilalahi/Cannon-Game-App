@@ -15,7 +15,7 @@ struct CollisionCategory {
     
     static let Blocker: UInt32 = 1
     static let Target: UInt32 = 1 << 1 // 2
-    static let Cannonbal: UInt32 = 1 << 2 // 4
+    static let Cannonball: UInt32 = 1 << 2 // 4
     static let Wall: UInt32 = 1 << 3 // 8
     
 }
