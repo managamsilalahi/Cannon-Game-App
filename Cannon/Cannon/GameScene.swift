@@ -87,7 +87,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var targetX = size.width * targetxPercent
         
         
-        for i in 1 ... numberOfTargets {
+        for _ in 1 ... numberOfTargets {
             
             let target = Target(sceneSize: self.frame.size)
             target.position = CGPointMake(targetX, self.frame.height * 0.5)
@@ -118,6 +118,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         timeRemainingLabel.horizontalAlignmentMode = .Left
         let y = self.frame.height - timeRemainingLabel.fontSize - edgeDistance
         timeRemainingLabel.position = CGPoint(x: edgeDistance, y: y)
+        
         self.addChild(timeRemainingLabel)
         
         
@@ -129,8 +130,127 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         secondsLabel.horizontalAlignmentMode = .Left
         let x = timeRemainingLabel.calculateAccumulatedFrame().width + edgeDistance + labelSpacing
         secondsLabel.position = CGPoint(x: x, y: y)
+        
         self.addChild(secondsLabel)
         
     }
+    
+    
+    
+    
+    // test wether an SKPhysicsBody is the cannonball
+    func isCannonball(body: SKPhysicsBody) -> Bool {
+        return body.categoryBitMask & CollisionCategory.Cannonball != 0
+        
+    }
+    
+    
+    // test wether an SKPhysicsBody is the blocker
+    func isBlocker(body: SKPhysicsBody) -> Bool {
+        return body.categoryBitMask & CollisionCategory.Blocker != 0
+    }
+    
+    // test wether an SKPhysicsBody is a target
+    func isTarget(body: SKPhysicsBody) -> Bool {
+        return body.categoryBitMask & CollisionCategory.Target != 0
+    }
+    
+    // test wether an SKPhysicsBody is a wall
+    func isWall(body: SKPhysicsBody) -> Bool {
+        return body.categoryBitMask & CollisionCategory.Wall != 0
+    }
+    
+    
+    // called when collision starts
+    func didBeginContact(contact: SKPhysicsContact) {
+        
+        var cannonball: SKPhysicsBody
+        var otherBody: SKPhysicsBody
+        
+        // determine which SKPhysicsBody is the cannonball
+        if isCannonball(contact.bodyA) {
+            cannonball = contact.bodyA
+            otherBody = contact.bodyB
+        } else {
+            cannonball = contact.bodyB
+            otherBody = contact.bodyA
+        }
+        
+        
+        // cannonball hit wall, so remove from screen
+        if isWall(otherBody) || isTarget(otherBody) || isBlocker(otherBody) {
+            cannon.cannonballOnScreen = false
+            cannonball.node?.removeFromParent()
+        }
+        
+        // cannonball hit blocker, so play blocker sound
+        if isBlocker(otherBody) {
+            let blocker = otherBody.node as! Blocker
+            blocker.playHitSound()
+            timeLeft -= blocker.blockerTimePenalty()
+        }
+        
+        // if cannonball hit target
+        if isTarget(otherBody) {
+            targetsRemaining -= 1
+            let target = otherBody.node as! Target
+            target.removeFromParent()
+            target.playHitSound()
+            timeLeft += target.targetTimeBonus()
+        }
+        
+    }
+    
+    
+    
+    // fire the cannon if there is not a cannonball on screen
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        for touch in touches {
+            let location = touch.locationInNode(self)
+            cannon.rotateToPointAndFire(location, scene: self)
+        }
+    }
+    
+    
+    
+    // updates to perform in each frame of the animation
+    override func update(currentTime: CFTimeInterval) {
+        
+        if previousTime == 0.0 {
+            previousTime = currentTime
+        }
+        
+        elapsedTime += (currentTime - previousTime)
+        timeLeft -= (currentTime - previousTime)
+        previousTime = currentTime
+        
+        if timeLeft < 0 {
+            timeLeft = 0
+        }
+        
+        secondsLabel.text = String(format: "%.1f seconds", timeLeft)
+        
+        // check wheter game is over
+        if targetsRemaining == 0 || timeLeft <= 0 {
+            runAction(SKAction.runBlock({
+                self.gameOver()
+            }))
+            
+        }
+        
+    }
+    
+    
+    
+    // display the game over screen
+    func gameOver() {
+        
+        let flipTransition = SKTransition.flipHorizontalWithDuration(1.0)
+        let gameOverScene = GameOverScene(size: self.size, won: targetsRemaining == 0 ? true : false, time: elapsedTime)
+        gameOverScene.scaleMode = .AspectFill
+        self.view?.presentScene(gameOverScene, transition: flipTransition)
+        
+    }
+    
     
 }
